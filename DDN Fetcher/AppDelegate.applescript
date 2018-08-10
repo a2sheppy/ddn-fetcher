@@ -63,6 +63,9 @@ script AppDelegate
     set listType to stylePopup's titleOfSelectedItem() as string
     set fxVersion to stringValue() of firefoxVersionField
 
+    -- Empty out the results box
+    firefoxVersionField's setStringValue:""
+    
     set output to fetchFormattedList(fxVersion, selectedFamily, listType) as text
     return output
   end okButtonPressed
@@ -74,7 +77,8 @@ script AppDelegate
     set fixedValue to ""
     set alertedAlready to false
     
-    -- Go through the string and make sure it has no invalid characters
+    -- Go through the string and make sure it has no invalid characters.
+    -- Remove any invalid characters and alert if any bad ones added.
     
     repeat with ch in the characters of curValue
       if ch ≠ "." and (ch < "0" or ch > "9") then
@@ -90,9 +94,9 @@ script AppDelegate
     firefoxVersionField's setStringValue:fixedValue
   end controlTextDidChange_
 
--- Called when the error is dismissed; theResult is the button name that was clicked
-on errorDismissed:theResult
-end errorDismmissed:
+  -- Called when the error is dismissed; theResult is the button name that was clicked
+  on errorDismissed:theResult
+  end errorDismmissed:
   
   -- Build the output
   on fetchFormattedList(fxVersion, familyName, listType)
@@ -162,14 +166,23 @@ end errorDismmissed:
   -- Firefox version
   on fetchResolvedDDNs(fxVersion, familyName)
     set componentString to makeComponentString(selectedComponents)
+    set fxVersionFilter to makeFirefoxVersionFilter(fxVersion)
 
     tell application "JSON Helper"
-      set bugURL to "https://bugzilla.mozilla.org/rest/bug?keywords=dev-doc-needed&f1=cf_status_firefox" & fxVersion & "&o1=changedto&v1=fixed" & componentString & "&bug_status=RESOLVED&bug_status=VERIFIED&bug_status=CLOSED&include_fields=id,component,summary"
-      
+      set bugURL to "https://bugzilla.mozilla.org/rest/bug?keywords=dev-doc-needed" & fxVersionFilter & componentString & "&bug_status=RESOLVED&bug_status=VERIFIED&bug_status=CLOSED&include_fields=id,component,summary"
       set bugList to fetch JSON from bugURL
     end tell
     return bugList
   end fetchResolvedDDNs
+  
+  -- Create the Firefox version filter from the version(s) specified
+  on makeFirefoxVersionFilter(fxVersion)
+    set versionFilter to ""
+    if (length of (fxVersion as text)) ≠ 0 then
+      set versionFilter to "&f1=cf_status_firefox" & fxVersion & "&o1=changedto&v1=fixed"
+    end if
+    return versionFilter
+  end makeFirefoxVersionFilter
   
   -- Convert an array of component names into the needed
   -- form for use in the Bugzilla query
