@@ -22,7 +22,8 @@ script AppDelegate
 	-- IBOutlets
 	property theWindow : missing value
   
-  property firefoxVersionField : missing value
+  property firefoxMinVersionField : missing value
+  property firefoxMaxVersionField : missing value
   property groupPopup : missing value
   property stylePopup : missing value
   property outputView : missing value
@@ -30,6 +31,11 @@ script AppDelegate
 	on applicationWillFinishLaunching_(aNotification)
 		-- Insert code here to initialize your application before any files are opened
     loadFamilyList()
+    
+    -- Load the channel version information from the Mozilla site
+    set latestFirefoxVersion to fetchLatestFirefoxVersion()
+    set firefoxVersionFields to fetchFirefoxVersionFields()
+    log "Started up!"
 	end applicationWillFinishLaunching_
 	
 	on applicationShouldTerminate_(sender)
@@ -61,18 +67,20 @@ script AppDelegate
     set selectedFamily to groupPopup's titleOfSelectedItem() as string
     set selectedComponents to apiFamilyObjCDict's valueForKey:selectedFamily
     set listType to stylePopup's titleOfSelectedItem() as string
-    set fxVersion to stringValue() of firefoxVersionField
+    set fxMinVersion to stringValue() of firefoxMinVersionField
+    set fxMaxVersion to stringValue() of firefoxMaxVersionField
 
     -- Empty out the results box
-    firefoxVersionField's setStringValue:""
+    outputView's setString:""
     
-    set output to fetchFormattedList(fxVersion, selectedFamily, listType) as text
+    set output to fetchFormattedList(fxMinVersion, fxMaxVersion, selectedFamily, listType) as text
     return output
   end okButtonPressed
   
   -- Handle changes to the version number field, to ensure it's valid
   on controlTextDidChange_(notificationObj)
-    set curValue to (stringValue() of firefoxVersionField as text)
+    set editField to object of notificationObj
+    set curValue to (stringValue() of editField as text)
     set gNSAlert to current application's NSAlert
     set fixedValue to ""
     set alertedAlready to false
@@ -91,7 +99,7 @@ script AppDelegate
         set fixedValue to fixedValue & ch
       end if
     end repeat
-    firefoxVersionField's setStringValue:fixedValue
+    editField's setStringValue:fixedValue
   end controlTextDidChange_
 
   -- Called when the error is dismissed; theResult is the button name that was clicked
@@ -99,10 +107,10 @@ script AppDelegate
   end errorDismmissed:
   
   -- Build the output
-  on fetchFormattedList(fxVersion, familyName, listType)
+  on fetchFormattedList(fxMinVersion, fxMaxVersion, familyName, listType)
     set outputHTML to ""
     set format to ""
-    set bugList to fetchResolvedDDNs(fxVersion, familyName)
+    set bugList to fetchResolvedDDNs(fxMinVersion, fxMaxVersion, familyName)
     
     -- If the bugs field is missing, an error occurred
     
@@ -118,7 +126,7 @@ script AppDelegate
         if code = 105 or code = 106 then
           display alert "An invalid component (or product) was specified in the topic area's configuration file." as critical buttons {"Stop"}
         else if code = 108 then
-          display alert ("The chosen version of Firefox doesn't support the standard fixed-status tracking fields (cf_status_firefox" & fxVersion & " in this case).") as critical buttons {"Stop"}
+          display alert ("The chosen version of Firefox doesn't support the standard fixed-status tracking fields (cf_status_firefox" & fxMinVersion & " in this case).") as critical buttons {"Stop"}
         else
           display alert ("Bugzilla reported an error handling the query [Error code: " & code & "].") as critical buttons ("Stop")
         end if
@@ -157,32 +165,62 @@ script AppDelegate
       set outputHTML to outputHTML & bugHTML & return
     end repeat
 
-    showResultsText(outputHTML, bugCount, listType, fxVersion)
-    showCompleteNotification(bugCount, fxVersion, listType)
+    showResultsText(outputHTML, bugCount, listType, fxMinVersion)
+    --showCompleteNotification(bugCount, fxMinVersion, listType)
     return outputHTML
   end fetchFormattedList
   
   -- Get the set of resolved DDN bugs for the given family and
   -- Firefox version
-  on fetchResolvedDDNs(fxVersion, familyName)
+  on fetchResolvedDDNs(fxMinVersion, fxMaxVersion, familyName)
     set componentString to makeComponentString(selectedComponents)
-    set fxVersionFilter to makeFirefoxVersionFilter(fxVersion)
+    set fxMinVersionFilter to makeFirefoxVersionFilter(fxMinVersion, fxMaxVersion)
 
     tell application "JSON Helper"
-      set bugURL to "https://bugzilla.mozilla.org/rest/bug?keywords=dev-doc-needed" & fxVersionFilter & componentString & "&bug_status=RESOLVED&bug_status=VERIFIED&bug_status=CLOSED&include_fields=id,component,summary"
+      set bugURL to "https://bugzilla.mozilla.org/rest/bug?keywords=dev-doc-needed" & fxMinVersionFilter & componentString & "&bug_status=RESOLVED&bug_status=VERIFIED&bug_status=CLOSED&include_fields=id,component,summary"
       set bugList to fetch JSON from bugURL
     end tell
     return bugList
   end fetchResolvedDDNs
   
   -- Create the Firefox version filter from the version(s) specified
-  on makeFirefoxVersionFilter(fxVersion)
+  on makeFirefoxVersionFilter(fxMinVersion)
     set versionFilter to ""
-    if (length of (fxVersion as text)) ≠ 0 then
-      set versionFilter to "&f1=cf_status_firefox" & fxVersion & "&o1=changedto&v1=fixed"
+    set minVersionLength to length of (fxMinVersion as text)
+    set maxVersionLength to length of (fxMaxVersion as text)
+    
+    -- If both lengths are 0, we do all bugs
+    if minVersionLength + maxVersionLength = 0 then
+      return versioNFilter
+    else
+    
+    end if
+
+    if (length of (fxMinVersion as text)) ≠ 0 then
+      set versionFilter to "&f1=cf_status_firefox" & fxMinVersion & "&o1=changedto&v1=fixed"
     end if
     return versionFilter
   end makeFirefoxVersionFilter
+  
+  -- Get list of valid Firefox version status fields
+  on fetchFirefoxVersionFields()
+    tell application "JSON Helper"
+      set allFields to fetch JSON from ("https://bugzilla.mozilla.org/rest/field/bug")
+    end tell
+    
+    set firefoxStatusFields to {}
+    set fieldsObj to fields of allFields
+    repeat with field in fieldsObj
+      if |name| of field starts with "cf_status_firefox" then
+        set localFieldName to |name| of field
+        set localDisplayName to display_name of field
+        
+        set newField to {fieldName: localFieldName, displayName: localDisplayName}
+        copy newField to the end of the firefoxStatusFields
+      end if
+    end repeat
+    return firefoxStatusFields
+  end fetchFirefoxVersionFields
   
   -- Convert an array of component names into the needed
   -- form for use in the Bugzilla query
@@ -219,19 +257,34 @@ script AppDelegate
   end replaceSubstring
   
   -- Show the "search complete" notification.
-  on showCompleteNotification(length, fxVersion, format)
+  on showCompleteNotification(length, fxMinVersion, format)
     if (length > 0) then
-      set msg to "Found " & (length as string) & " " & selectedFamily & " DDN bugs for Firefox " & (fxVersion as string) & ". which are marked dev-doc-needed" & ¬
+      set msg to "Found " & (length as string) & " " & selectedFamily & " DDN bugs for Firefox " & (fxMinVersion as string) & ". which are marked dev-doc-needed" & ¬
         " Returned in " & format & " format."
     else
-      set msg to "No " & selectedFamily & " bugs found for Friefox " & (fxVersion as string) & " which are marked dev-doc-needed."
+      set msg to "No " & selectedFamily & " bugs found for Firefox " & (fxMinVersion as string) & " which are marked dev-doc-needed."
     end if
     display notification msg with title (selectedFamily & " DDN Bugs Retrieved")
   end showCompleteNotification
 
   -- Show the output to the user
-  on showResultsText(output, length, format, fxVersion)
+  on showResultsText(output, length, format, fxMinVersion)
     outputView's setString:output
   end showResultsText
+  
+  -- Fetch the latest Firefox version (Nightly channel) from the JSON file
+  -- maintained on product-details.mozilla.org.
+  on fetchLatestFirefoxVersion()
+    tell application "JSON Helper"
+      set versionInfo to fetch JSON from ("https://product-details.mozilla.org/1.0/firefox_versions.json")
+      --set versionNumber to 0
+      
+      set the text item delimiters of AppleScript to {"a", "b", "E"}
+      set bits to text items of (FIREFOX_NIGHTLY of versionInfo)
+      set the text item delimiters of AppleScript to ", "
+      return first item of bits
+    end tell
+    return 0
+  end fetchLatestFirefoxVersion
 
 end script
