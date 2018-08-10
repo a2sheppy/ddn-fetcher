@@ -61,20 +61,71 @@ script AppDelegate
     set selectedFamily to groupPopup's titleOfSelectedItem() as string
     set selectedComponents to apiFamilyObjCDict's valueForKey:selectedFamily
     set listType to stylePopup's titleOfSelectedItem() as string
+    set fxVersion to stringValue() of firefoxVersionField
 
-    set editable of outputView to false
-    outputView's setFont_(current application's NSFont's fontWithName_size_("Menlo", 12))
-    
-    set output to fetchFormattedList(stringValue() of firefoxVersionField, selectedFamily, listType) as text
+    set output to fetchFormattedList(fxVersion, selectedFamily, listType) as text
     return output
   end okButtonPressed
   
+  -- Handle changes to the version number field, to ensure it's valid
+  on controlTextDidChange_(notificationObj)
+    set curValue to (stringValue() of firefoxVersionField as text)
+    set gNSAlert to current application's NSAlert
+    set fixedValue to ""
+    set alertedAlready to false
+    
+    -- Go through the string and make sure it has no invalid characters
+    
+    repeat with ch in the characters of curValue
+      if ch ≠ "." and (ch < "0" or ch > "9") then
+        if alertedAlready = false then
+          set theAlert to gNSAlert's makeAlert_buttons_text_("Please enter a valid Firefox version number", {"OK"}, "Only the digits 0-9 and the decimal point are allowed in Firefox version numbers.")
+          theAlert's showOver:theWindow calling:{"errorDismissed:", me}
+          alertedAlready = true
+        end if
+      else
+        set fixedValue to fixedValue & ch
+      end if
+    end repeat
+    firefoxVersionField's setStringValue:fixedValue
+  end controlTextDidChange_
+
+-- Called when the error is dismissed; theResult is the button name that was clicked
+on errorDismissed:theResult
+end errorDismmissed:
+  
   -- Build the output
   on fetchFormattedList(fxVersion, familyName, listType)
-    set bugList to fetchResolvedDDNs(fxVersion, familyName)
-    set bugCount to length of bugs in bugList
     set outputHTML to ""
     set format to ""
+    set bugList to fetchResolvedDDNs(fxVersion, familyName)
+    
+    -- If the bugs field is missing, an error occurred
+    
+    try
+      set bugsOnly to bugs of bugList
+      set bugCount to length of bugsOnly
+    on error
+      try
+        set code to code of bugList
+        
+        -- Handle specific codes of interest
+        
+        if code = 105 or code = 106 then
+          display alert "An invalid component (or product) was specified in the topic area's configuration file." as critical buttons {"Stop"}
+        else if code = 108 then
+          display alert ("The chosen version of Firefox doesn't support the standard fixed-status tracking fields (cf_status_firefox" & fxVersion & " in this case).") as critical buttons {"Stop"}
+        else
+          display alert ("Bugzilla reported an error handling the query [Error code: " & code & "].") as critical buttons ("Stop")
+        end if
+        return "" -- no results
+      on error
+        display alert "The response from Bugzilla was not recognized." as critical buttons {"Stop"}
+        log bugList
+        return "" -- no results
+      end try
+      display alert "No bugs returned by Bugzilla." as informational
+    end try
     
     -- Determine the proper formatting string based on the list type
     -- requested by the caller
