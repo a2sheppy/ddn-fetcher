@@ -8,9 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		A50CEF27211B0A3800AD7875 /* APIFamilies.plist in Resources */ = {isa = PBXBuildFile; fileRef = A50CEF26211B0A3800AD7875 /* APIFamilies.plist */; };
-		A50CEF29211C8DAD00AD7875 /* DDN Hunter Icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = A50CEF28211C8DAC00AD7875 /* DDN Hunter Icon.icns */; };
 		A50CEF30211CE1AE00AD7875 /* Credits.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = A50CEF2F211CE1AE00AD7875 /* Credits.rtfd */; };
 		A50CEF34211D4D9400AD7875 /* NSAlert+MyriadHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = A50CEF33211D4D9400AD7875 /* NSAlert+MyriadHelpers.m */; };
+		A50CEF36211DF69E00AD7875 /* SKProgressBar.app in Resources */ = {isa = PBXBuildFile; fileRef = A50CEF35211DF69E00AD7875 /* SKProgressBar.app */; };
 		A5CC84F72114C52C00FFC587 /* AppleScriptObjC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5CC84F62114C52C00FFC587 /* AppleScriptObjC.framework */; };
 		A5CC84FA2114C52C00FFC587 /* AppDelegate.applescript in Sources */ = {isa = PBXBuildFile; fileRef = A5CC84F92114C52C00FFC587 /* AppDelegate.applescript */; };
 		A5CC84FC2114C52E00FFC587 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A5CC84FB2114C52E00FFC587 /* Assets.xcassets */; };
@@ -20,11 +20,11 @@
 
 /* Begin PBXFileReference section */
 		A50CEF26211B0A3800AD7875 /* APIFamilies.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = APIFamilies.plist; sourceTree = "<group>"; };
-		A50CEF28211C8DAC00AD7875 /* DDN Hunter Icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = "DDN Hunter Icon.icns"; path = "../../../../Documents/Mozilla/New MDN Logos/DDN Hunter Icon.icns"; sourceTree = "<group>"; };
 		A50CEF2D211CD9C200AD7875 /* update-version.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "update-version.sh"; sourceTree = "<group>"; };
 		A50CEF2F211CE1AE00AD7875 /* Credits.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; path = Credits.rtfd; sourceTree = "<group>"; };
 		A50CEF32211D4D9400AD7875 /* NSAlert+MyriadHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSAlert+MyriadHelpers.h"; sourceTree = "<group>"; };
 		A50CEF33211D4D9400AD7875 /* NSAlert+MyriadHelpers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSAlert+MyriadHelpers.m"; sourceTree = "<group>"; };
+		A50CEF35211DF69E00AD7875 /* SKProgressBar.app */ = {isa = PBXFileReference; lastKnownFileType = wrapper.application; path = SKProgressBar.app; sourceTree = "<group>"; };
 		A5CC84F32114C52C00FFC587 /* Firefox DDN Fetcher.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Firefox DDN Fetcher.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A5CC84F62114C52C00FFC587 /* AppleScriptObjC.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppleScriptObjC.framework; path = System/Library/Frameworks/AppleScriptObjC.framework; sourceTree = SDKROOT; };
 		A5CC84F92114C52C00FFC587 /* AppDelegate.applescript */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.applescript; path = AppDelegate.applescript; sourceTree = "<group>"; };
@@ -49,6 +49,7 @@
 		A50CEF31211D4D6100AD7875 /* Myriad Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				A50CEF35211DF69E00AD7875 /* SKProgressBar.app */,
 				A50CEF32211D4D9400AD7875 /* NSAlert+MyriadHelpers.h */,
 				A50CEF33211D4D9400AD7875 /* NSAlert+MyriadHelpers.m */,
 			);
@@ -89,7 +90,6 @@
 				A5CC84FB2114C52E00FFC587 /* Assets.xcassets */,
 				A5CC84FD2114C52E00FFC587 /* MainMenu.xib */,
 				A5CC85002114C52E00FFC587 /* Info.plist */,
-				A50CEF28211C8DAC00AD7875 /* DDN Hunter Icon.icns */,
 				A5CC85012114C52E00FFC587 /* main.m */,
 				A50CEF26211B0A3800AD7875 /* APIFamilies.plist */,
 				A50CEF2F211CE1AE00AD7875 /* Credits.rtfd */,
@@ -156,9 +156,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				A50CEF30211CE1AE00AD7875 /* Credits.rtfd in Resources */,
-				A50CEF29211C8DAD00AD7875 /* DDN Hunter Icon.icns in Resources */,
 				A5CC84FC2114C52E00FFC587 /* Assets.xcassets in Resources */,
 				A50CEF27211B0A3800AD7875 /* APIFamilies.plist in Resources */,
+				A50CEF36211DF69E00AD7875 /* SKProgressBar.app in Resources */,
 				A5CC84FF2114C52E00FFC587 /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

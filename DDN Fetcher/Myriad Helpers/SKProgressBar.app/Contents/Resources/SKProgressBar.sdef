@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dictionary SYSTEM "file://localhost/System/Library/DTDs/sdef.dtd">
+
+<dictionary title="SKProgressBar Terminology">
+    <suite name="Standard Suite" code="????" description="Common classes and commands for all applications.">
+        
+        <command name="count" code="corecnte" description="Return the number of elements of a particular class within an object.">
+            <cocoa class="NSCountCommand"/>
+            <direct-parameter type="specifier" description="The objects to be counted."/>
+            <parameter name="each" code="kocl" type="type" optional="yes" description="The class of objects to be counted." hidden="yes">
+                <cocoa key="ObjectClass"/>
+            </parameter>
+            <result type="integer" description="The count."/>
+        </command>
+        
+        <command name="delete" code="coredelo" description="Delete an object.">
+            <cocoa class="NSDeleteCommand"/>
+            <direct-parameter type="specifier" description="the object to delete"/>
+        </command>
+        
+        <command name="exists" code="coredoex" description="Verify that an object exists.">
+            <cocoa class="NSExistsCommand"/>
+            <direct-parameter type="any" description="The object(s) to check."/>
+            <result type="boolean" description="Did the object(s) exist?"/>
+        </command>
+        
+        <class name="application" code="capp" description="The application's top-level scripting object.">
+            <cocoa class="NSApplication"/>
+            <property name="name" code="pnam" type="text" access="r" description="The name of the application."/>
+            <property name="frontmost" code="pisf" type="boolean" access="r" description="Is this the active application?">
+                <cocoa key="isActive"/>
+            </property>
+            <property name="version" code="vers" type="text" access="r" description="The version number of the application."/>
+            <responds-to name="quit">
+                <cocoa method="handleQuitScriptCommand:"/>
+            </responds-to>
+        </class>
+        
+        <command name="make" code="corecrel" description="Make a new object.">
+            <cocoa class="SKProgressBar.SKCreateCommand"/>
+            <parameter name="new" code="kocl" type="type"
+                description="The class of the new object.">
+                <cocoa key="ObjectClass"/>
+            </parameter>
+            <parameter name="at" code="insh" type="location specifier" optional="yes"
+                description="The location at which to insert the object.">
+                <cocoa key="Location"/>
+            </parameter>
+            <parameter name="with data" code="data" type="any" optional="yes"
+                description="The initial contents of the object.">
+                <cocoa key="ObjectData"/>
+            </parameter>
+            <parameter name="with properties" code="prdt" type="record" optional="yes"
+                description="The initial values for properties of the object.">
+                <cocoa key="KeyDictionary"/>
+            </parameter>
+            <result type="specifier" description="to the new object"/>
+        </command>
+        
+        <command name="move" code="coremove" description="Move object(s) to a new location.">
+            <cocoa class="SKProgressBar.SKMoveCommand"/>
+            <direct-parameter type="specifier" description="the object(s) to move"/>
+            <parameter name="to" code="insh" type="location specifier"
+                description="The new location for the object(s).">
+                <cocoa key="ToLocation"/>
+            </parameter>
+            <result type="specifier" description="the moved object(s)"/>
+        </command>
+        
+    </suite>
+    
+    <suite name="SKProgressBar Suite" code="SKpb" description="Classes for the SKProgressBar application.">
+        
+        <value-type name="pointvalue" code="pOIV" description="A value type representing a point.">
+            <cocoa class="NSValue"/>
+        </value-type>
+
+        <enumeration name="alignment" code="aliN">
+            <cocoa name="alignmentOptions"/>
+            <enumerator name="left" code="leTA" description="left text alignment."/>
+            <enumerator name="center" code="ceTA" description="center text alignment."/>
+            <enumerator name="right" code="riTA" description="right text alignment."/>
+        </enumeration>
+        
+        <enumeration name="header footer size" code="hfSZ">
+            <enumerator name="mini" code="miSZ" description="mini text size of header or footer."/>
+            <enumerator name="small" code="smSZ" description="small text size of header or footer."/>
+            <enumerator name="regular" code="rgSZ" description="regular text size of header or footer."/>
+        </enumeration>
+        
+        <class name="application" code="capp" description="application's add-ons." inherits="application">
+            <cocoa class="NSApplication"/>
+            <element type="progress bar" description="The progress bar set." >
+                <cocoa key="barArray"/>
+            </element>
+            <property name="quit delay" code="qdel" type="integer" description="the time in seconds the application will idle before quitting; if set to zero, idle time will not cause the application to quit"/>
+            <property name="main bar" code="cRpB" type="progress bar" description="the main progress bar"/>
+            <property name="width" code="wDdT" type="integer" description="The width of the main window."/>
+            <property name="title" code="titl" type="text" description="The title of the main window."/>
+            <property name="floating" code="wNfL" type="boolean" description="Is the main window floating."/>
+            <property name="show window" code="sHwD" type="boolean" description="is the window visible."/>
+            <property name="position" code="pStN" type="pointvalue" description="The position of the main window."/>
+        </class>
+        
+        <class name="progress bar" code="pGbR" description="a progress indicator.">
+            <cocoa class="Progressbar"/>
+            <property name="maximum value" code="vMaX" type="real" description="maximum value."/>
+            <property name="minimum value" code="vMiN" type="real" description="minimum value."/>
+            <property name="current value" code="cVaL" type="real" description="current value."/>
+            <property name="indeterminate" code="iDtM" type="boolean" description="is the progress bar indeterminated."/>
+            <property name="image path" code="iMGe" type="file" description="The file of the displayed icon.">
+                <cocoa key="scriptingImagePath"/>
+            </property>
+            <property name="header" code="hEaR" type="text" description="The text of the upper label."/>
+            <property name="footer" code="fOtR" type="text" description="The text of the lower label."/>
+            <property name="header alignment" code="hDaG" type="alignment" description="text alignment for header.">
+                <cocoa key="scriptingHeaderAlignment"/>
+            </property>
+            <property name="footer alignment" code="fTaG" type="alignment" description="text alignment for footer.">
+                <cocoa key="scriptingFooterAlignment"/>
+            </property>
+            <property name="header size" code="hDsZ" type="header footer size" description="text size for header.">
+                <cocoa key="scriptingHeaderSize"/>
+            </property>
+            <property name="footer size" code="fTsZ" type="header footer size" description="text size for footer.">
+                <cocoa key="scriptingFooterSize"/>
+            </property>
+            
+            <responds-to command="increment">
+                <cocoa method="increment:"/>
+            </responds-to>
+            <responds-to command="start animation">
+                <cocoa method="startAnimation:"/>
+            </responds-to>
+            <responds-to command="stop animation">
+                <cocoa method="stopAnimation:"/>
+            </responds-to>
+        </class>
+        
+        <command name="increment" code="pGbRIcRm" description="Advances the progress bar of a determinate progress indicator by the specified amount.">
+            <direct-parameter description="the progress bar passed to the command">
+                <type type="progress bar"/>
+            </direct-parameter>
+            <parameter name="by" code="bYVl" type="real"
+                description="the specified amount.">
+                <cocoa key="incrementValue"/>
+            </parameter>
+        </command>
+        <command name="start animation" code="pGbRStMn" description="Starts the animation.">
+            <direct-parameter description="the progress bar passed to the command">
+                <type type="progress bar"/>
+            </direct-parameter>
+        </command>
+        <command name="stop animation" code="pGbRSpMn" description="Stops the animation.">
+            <direct-parameter description="the progress bar passed to the command">
+                <type type="progress bar"/>
+            </direct-parameter>
+        </command>
+    </suite>
+</dictionary>

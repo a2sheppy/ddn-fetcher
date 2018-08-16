@@ -386,6 +386,9 @@ DQ
                     </button>
                 </subviews>
             </view>
+            <connections>
+                <outlet property="delegate" destination="Voe-Tx-rLC" id="xja-QF-6Ec"/>
+            </connections>
             <point key="canvasLocation" x="271" y="121"/>
         </window>
     </objects>
